@@ -1,0 +1,118 @@
+/*(T2)
+Tarefa
+Criar modelo físico do schema brh e aplicar no SGBD MySQL.
+
+Descrição
+Crie o schema brh no MySQL;
+Crie as tabelas ATRIBUICAO, COLABORADOR, DEPARTAMENTO, DEPENDENTE, PAPEL e PROJETO (e demais tabelas oriundas da normalização);
+Crie o arquivo schema_mysql.sql com todos os comandos necessários para reproduzir a criação do modelo físico;
+Publique o arquivo na sua pasta dentro do Drive semana 2 - Google Drive.
+*/
+
+/***************************************************************************************/
+/* CRIANDO O SCHEMA brh no MySQL: */
+drop schema if exists brh;
+create schema brh;
+use brh;
+/***************************************************************************************/
+
+/***************************************************************************************/
+/* CRIANDO AS TABELAS: ATRIBUICAO, COLABORADOR, DEPARTAMENTO, DEPENDENTE, PAPEL e PROJETO
+   (e demais tabelas oriundas da normalização);
+
+/* DEPARTAMENTO */
+CREATE TABLE DEPARTAMENTO (
+	SIGLA                 VARCHAR(08) NOT NULL,
+    NOME                  VARCHAR(50) NOT NULL,
+   	CHEFE                 VARCHAR(08) NOT NULL,
+    DEPARTAMENTO_SUPERIOR VARCHAR(08),
+
+    CONSTRAINT CP_DEPARTAMENTO PRIMARY KEY (SIGLA),
+	CONSTRAINT CE_DEPARTAMENTO_SUPERIOR
+    FOREIGN KEY (DEPARTAMENTO_SUPERIOR)
+	REFERENCES DEPARTAMENTO(SIGLA)
+);
+
+/* COLABORADOR */
+CREATE TABLE COLABORADOR (
+    MATRICULA         VARCHAR(08)  NOT NULL,
+    CPF 	          VARCHAR(20)  NOT NULL,
+    NOME              VARCHAR(50)  NOT NULL,
+    EMAIL_PESSOAL     VARCHAR(50)  NOT NULL,
+    EMAIL_CORPORATIVO VARCHAR(50)  NOT NULL,      
+    SALARIO           DECIMAL(7,2) NOT NULL,
+    COMPLEMENTO       VARCHAR(100) NOT NULL,
+    DEPARTAMENTO      VARCHAR(08)  NOT NULL,
+    
+ CONSTRAINT CP_COLABORADOR PRIMARY KEY (MATRICULA),
+ CONSTRAINT CE_DEPART_COLAB 
+ FOREIGN KEY (DEPARTAMENTO)
+ REFERENCES DEPARTAMENTO(SIGLA)
+ );
+
+/* ENDERECO */
+CREATE TABLE ENDERECO ( 
+    MATRICULA    VARCHAR(08)  NOT NULL,
+    LOGRADOURO   VARCHAR(100) NOT NULL,
+    BAIRRO       VARCHAR(50)  NOT NULL,
+    CIDADE       VARCHAR(30)  NOT NULL,
+    ESTADO       CHAR(2)      NOT NULL,
+    CEP          VARCHAR(9)   NOT NULL,
+ 
+ CONSTRAINT CP_ENDERECO PRIMARY KEY (MATRICULA) 
+ );
+ 
+/* TELEFONE */
+CREATE TABLE TELEFONE (
+	MATRICULA    VARCHAR(08)  NOT NULL,
+    TELEFONE     VARCHAR(20)  NOT NULL,
+    TIPO         CHAR(1)      NOT NULL,
+ CONSTRAINT CP_TELEFONE PRIMARY KEY (MATRICULA, TELEFONE),
+ CONSTRAINT CE_TELEFONE 
+ FOREIGN KEY (MATRICULA)
+ REFERENCES COLABORADOR(MATRICULA)
+); 
+
+/* DEPENDENTE */ 
+CREATE TABLE DEPENDENTE (
+    COLABORADOR     VARCHAR(08)  NOT NULL,
+	CPF             VARCHAR(20)  NOT NULL,
+    NOME            VARCHAR(50)  NOT NULL,
+    DATA_NASCimento DATE         NOT NULL,
+    PARENTESCO      VARCHAR(50)  NOT NULL,
+
+ CONSTRAINT CP_DEPENDENTE PRIMARY KEY (COLABORADOR),
+ CONSTRAINT CE_DEPENDENTE
+ FOREIGN KEY (COLABORADOR)
+ REFERENCES COLABORADOR(MATRICULA)
+ );
+ 
+ /* PROJETO */
+CREATE TABLE PROJETO (
+	ID          VARCHAR(08) NOT NULL,
+    NOME        VARCHAR(50) NOT NULL,  	
+   	RESPONSAVEL VARCHAR(08) NOT NULL,
+    DATA_INI    DATE        NOT NULL,
+    DATA_FIM 	DATE,
+ CONSTRAINT CP_PROJETO PRIMARY KEY (ID),
+ CONSTRAINT CE_RESPONSAVEL
+ FOREIGN KEY (RESPONSAVEL)
+ REFERENCES COLABORADOR (MATRICULA)
+ );
+ 
+/* ATRIBUICAO */
+CREATE TABLE ATRIBUICAO (
+	ID_COLABORADOR VARCHAR(08) NOT NULL,
+    ID_PROJETO     VARCHAR(08) NOT NULL,
+    ID_PAPEL       VARCHAR(08) NOT NULL,
+ 
+ CONSTRAINT CP_ATRIBUICAO PRIMARY KEY (ID_COLABORADOR, ID_PROJETO, ID_PAPEL)
+);
+
+/* PAPEL */ 
+CREATE TABLE PAPEL (
+	ID_PAPEL   VARCHAR(08)  NOT NULL,
+    NOME       VARCHAR(50)  NOT NULL,
+ CONSTRAINT CP_PAPEL PRIMARY KEY (ID_PAPEL) 
+);
+/***************************************************************************************/
